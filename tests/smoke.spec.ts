@@ -8,7 +8,7 @@ test("dashboard exposes the Persiapantubel gerund infinitive shell", async ({ pa
   ).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Navigasi utama" })).toBeVisible();
   await expect(page.getByText("Verb Bank", { exact: true })).toBeVisible();
-  await expect(page.getByText("curated MVP verb bank")).toBeVisible();
+  await expect(page.getByText("curated verb bank")).toBeVisible();
 });
 
 test("search finds verb patterns and Indonesian meaning", async ({ page }) => {

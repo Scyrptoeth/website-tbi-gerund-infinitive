@@ -24,7 +24,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   contentStats,
   getCategoryLabel,
-  getVerbById,
   learningPackages,
   verbs,
   type LearningPackage,
@@ -586,7 +585,7 @@ export function LearningApp() {
           </div>
           <div className="hero-mark" aria-label="Jumlah content bank aktif">
             <span>{contentStats.total}</span>
-            <small>curated MVP verb bank</small>
+            <small>curated verb bank</small>
           </div>
         </div>
 
@@ -594,7 +593,7 @@ export function LearningApp() {
           <article className="stat-card">
             <span>Verb Bank</span>
             <strong>{contentStats.total}</strong>
-            <small>30 gerund, 30 infinitive, 30 dual-pattern</small>
+            <small>100 gerund, 100 infinitive, 100 dual-pattern</small>
           </article>
           <article className="stat-card">
             <span>Flipcard Dibuka</span>
@@ -805,7 +804,6 @@ export function LearningApp() {
     const selectedAnswer = activeAnswers[question.id];
     const isSubmitted = Boolean(submittedAttempt);
     const isCorrect = selectedAnswer === question.correctKey;
-    const verb = getVerbById(question.verbId);
 
     return (
       <article
@@ -816,7 +814,9 @@ export function LearningApp() {
       >
         <div className="question-head">
           <span className="eyebrow">Soal {index + 1}</span>
-          {verb ? <PatternBadge category={verb.category} /> : null}
+          {isSubmitted ? (
+            <span className="eyebrow">Review pattern setelah submit</span>
+          ) : null}
         </div>
         <h3>{question.prompt}</h3>
         <div className="option-grid" role="group" aria-label={`Pilihan soal ${index + 1}`}>
@@ -928,7 +928,7 @@ export function LearningApp() {
           <article className="stat-card">
             <span>Total content</span>
             <strong>{contentStats.total}</strong>
-            <small>quality-first MVP dari target roadmap 300</small>
+            <small>roadmap 300 item sudah aktif</small>
           </article>
           <article className="stat-card">
             <span>Questions</span>
@@ -942,7 +942,7 @@ export function LearningApp() {
           </article>
           <article className="stat-card">
             <span>Evidence</span>
-            <strong>2</strong>
+            <strong>3</strong>
             <small>grammar references per item</small>
           </article>
         </div>
@@ -1026,7 +1026,7 @@ export function LearningApp() {
 
         <div className="sidebar-foot">
           <Sparkles aria-hidden="true" size={18} />
-          <span>{contentStats.total} quality-first items</span>
+          <span>{contentStats.total} curated items</span>
         </div>
       </aside>
 

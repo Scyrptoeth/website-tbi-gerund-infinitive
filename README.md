@@ -36,12 +36,12 @@ npm run dev
 
 ## Content Baseline
 
-The current learning bank is a quality-first MVP sample:
+The current learning bank implements the 300-entry roadmap:
 
-- 30 gerund-only verbs
-- 30 infinitive-only verbs
-- 30 dual-pattern verbs
-- 9 mixed test packages
-- 90 original quiz questions
+- 100 gerund-only verbs
+- 100 infinitive-only verbs
+- 100 dual-pattern verbs
+- 30 mixed test packages
+- 300 original quiz questions
 
 No official TOEFL, TOEIC, or IELTS questions are copied. Exam-related wording remains conservative unless exact legal source evidence is available.
