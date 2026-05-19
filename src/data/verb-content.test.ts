@@ -63,6 +63,9 @@ describe("gerund and infinitive content integrity", () => {
       ).toBe(true);
       expect(question.explanation).toContain(`Jawaban benar ${question.correctKey}`);
       expect(question.prompt).not.toMatch(/gerund-only|infinitive-only|dual-pattern/i);
+      expect(question.type).toBe("completion");
+      expect(question.prompt).toMatch(/^Pilih kalimat yang paling tepat untuk pola/);
+      expect(question.prompt).not.toMatch(/^Pernyataan mana yang paling akurat/);
 
       answerDistribution.set(
         question.correctKey,

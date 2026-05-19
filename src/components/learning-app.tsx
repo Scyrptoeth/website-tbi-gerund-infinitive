@@ -694,7 +694,7 @@ export function LearningApp() {
         </div>
 
         <div className="content-stack">
-          {searchResults.slice(0, 36).map((verb) => (
+          {searchResults.map((verb) => (
             <VerbSummary key={verb.id} verb={verb} />
           ))}
         </div>

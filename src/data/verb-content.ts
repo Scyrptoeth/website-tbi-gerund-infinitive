@@ -73,11 +73,7 @@ export type QuizOption = {
 export type QuizQuestion = {
   id: string;
   verbId: string;
-  type:
-    | "completion"
-    | "meaning-difference"
-    | "error-recognition"
-    | "pattern-classification";
+  type: "completion";
   prompt: string;
   options: QuizOption[];
   correctKey: OptionKey;
@@ -731,6 +727,48 @@ function makeOptions(
   }));
 }
 
+function createAcceptedPatternSentence(verb: VerbItem) {
+  const patterns = verb.acceptedPatterns;
+
+  if (patterns.includes("used-to-infinitive")) {
+    return "They used to review the answer sheet every evening.";
+  }
+
+  if (patterns.includes("object-to-infinitive")) {
+    return `They ${verb.verb1} the students to review the answer sheet.`;
+  }
+
+  if (patterns.includes("object-gerund")) {
+    return `They ${verb.verb1} the students reviewing the answer sheet.`;
+  }
+
+  if (patterns.includes("object-bare-infinitive")) {
+    return `They ${verb.verb1} the students review the answer sheet.`;
+  }
+
+  if (patterns.includes("passive-to-infinitive")) {
+    return `They were ${verb.verb3} to review the answer sheet.`;
+  }
+
+  if (patterns.includes("to-infinitive")) {
+    return `They ${verb.verb1} to review the answer sheet.`;
+  }
+
+  if (patterns.includes("gerund")) {
+    return `They ${verb.verb1} reviewing the answer sheet.`;
+  }
+
+  if (patterns.includes("bare-infinitive")) {
+    return `They ${verb.verb1} review the answer sheet.`;
+  }
+
+  if (patterns.includes("preposition-gerund")) {
+    return `They ${verb.verb1} about reviewing the answer sheet.`;
+  }
+
+  return `They ${verb.verb1} reviewing the answer sheet.`;
+}
+
 function createQuestion(verb: VerbItem, index: number): QuizQuestion {
   const correctKey = OPTION_KEYS[index % OPTION_KEYS.length];
 
@@ -780,26 +818,18 @@ function createQuestion(verb: VerbItem, index: number): QuizQuestion {
     };
   }
 
-  const correctText =
-    verb.meaningShift === "meaning-change"
-      ? "Gerund dan to-infinitive bisa sama-sama benar, tetapi maknanya dapat berbeda."
-      : "Lebih dari satu struktur dapat benar, tetapi bentuknya bergantung pada konteks.";
-
   return {
     id: `q-${verb.id}`,
     verbId: verb.id,
-    type:
-      verb.meaningShift === "meaning-change"
-        ? "meaning-difference"
-        : "pattern-classification",
-    prompt: `Pernyataan mana yang paling akurat tentang pola "${verb.verb1}"?`,
-    options: makeOptions(correctKey, correctText, [
-      `"${verb.verb1}" hanya boleh memakai satu pola dalam semua konteks.`,
-      `"${verb.verb1}" selalu memakai Verb-2 setelahnya.`,
-      `Pilihan bentuk setelah "${verb.verb1}" tidak perlu memperhatikan makna kalimat.`,
+    type: "completion",
+    prompt: `Pilih kalimat yang paling tepat untuk pola "${verb.verb1}".`,
+    options: makeOptions(correctKey, createAcceptedPatternSentence(verb), [
+      `They ${verb.verb1} reviewed to the answer sheet.`,
+      `They ${verb.verb1} to reviewing the answer sheet.`,
+      `They ${verb.verb1} review to the answer sheet yesterday.`,
     ]),
     correctKey,
-    explanation: `Jawaban benar ${correctKey}. "${verb.verb1}" adalah dual-pattern item. ${verb.contrastNote ?? verb.usageNote}`,
+    explanation: `Jawaban benar ${correctKey}. Kalimat tersebut mengikuti pola ${verb.patternLabel}. Untuk dual-pattern item, baca konteks karena pola yang berbeda dapat mengubah struktur atau makna. ${verb.contrastNote ?? verb.usageNote}`,
   };
 }
 

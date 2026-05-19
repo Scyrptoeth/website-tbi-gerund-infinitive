@@ -14,6 +14,10 @@ test("dashboard exposes the Persiapantubel gerund infinitive shell", async ({ pa
 test("search finds verb patterns and Indonesian meaning", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: /Pencarian/i }).click();
+
+  await expect(page.getByText("300 hasil ditemukan.")).toBeVisible();
+  await expect(page.locator(".content-stack > .verb-row")).toHaveCount(300);
+
   await page.getByRole("searchbox", { name: "Cari verb atau pattern" }).fill("stop");
 
   await expect(page.getByText("stop - stopped - stopped")).toBeVisible();
