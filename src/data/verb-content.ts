@@ -727,6 +727,22 @@ function makeOptions(
   }));
 }
 
+function getDualQuestionGuidance(verb: VerbItem) {
+  if (verb.meaningShift === "meaning-change") {
+    return `Pada "${verb.verb1}", pilihan pola dapat mengubah makna. Bandingkan konteks sebelum memilih Verb-ing atau to + Verb-1.`;
+  }
+
+  if (verb.meaningShift === "context-dependent") {
+    return `Pada "${verb.verb1}", pola ditentukan oleh struktur kalimat, terutama object, preposition, dan hubungan antaraksi.`;
+  }
+
+  if (verb.meaningShift === "special-case") {
+    return `Pada "${verb.verb1}", perhatikan aturan khusus seperti perception verbs, causative verbs, passive-like gerund, atau used to.`;
+  }
+
+  return `Pada "${verb.verb1}", kedua pola dapat muncul; perbedaan biasanya ada pada penekanan atau register.`;
+}
+
 function createAcceptedPatternSentence(verb: VerbItem) {
   const patterns = verb.acceptedPatterns;
 
@@ -829,7 +845,7 @@ function createQuestion(verb: VerbItem, index: number): QuizQuestion {
       `They ${verb.verb1} review to the answer sheet yesterday.`,
     ]),
     correctKey,
-    explanation: `Jawaban benar ${correctKey}. Kalimat tersebut mengikuti pola ${verb.patternLabel}. Untuk dual-pattern item, baca konteks karena pola yang berbeda dapat mengubah struktur atau makna. ${verb.contrastNote ?? verb.usageNote}`,
+    explanation: `Jawaban benar ${correctKey}. Kalimat tersebut mengikuti pola ${verb.patternLabel}. Untuk dual-pattern item, baca konteks karena pola yang berbeda dapat mengubah struktur atau makna. ${getDualQuestionGuidance(verb)}`,
   };
 }
 

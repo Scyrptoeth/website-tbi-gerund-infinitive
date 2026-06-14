@@ -24,7 +24,10 @@ test("search finds verb patterns and Indonesian meaning", async ({ page }) => {
   await page.getByRole("searchbox", { name: "Cari verb atau pattern" }).fill("stop");
 
   await expect(page.getByText("stop - stopped - stopped")).toBeVisible();
-  await expect(page.getByText(/Stop doing means end the activity/i)).toBeVisible();
+  await expect(
+    page.getByText(/"stop" termasuk dual-pattern dengan kemungkinan perubahan makna/i),
+  ).toBeVisible();
+  await expect(page.getByText("Tier", { exact: true })).toHaveCount(0);
 });
 
 test("materi and flipcard share package rail behavior", async ({ page }) => {
@@ -36,7 +39,7 @@ test("materi and flipcard share package rail behavior", async ({ page }) => {
 
   await page.getByRole("button", { exact: true, name: "Flipcard" }).click();
   await expect(page.getByRole("heading", { name: "Flipcard active recall" })).toBeVisible();
-  await page.getByRole("button", { name: /Tap untuk lihat pattern/i }).first().click();
+  await page.getByRole("button", { name: /Ketuk untuk lihat pola/i }).first().click();
 
   await expect(page.getByText("admit + Verb-ing")).toBeVisible();
 });

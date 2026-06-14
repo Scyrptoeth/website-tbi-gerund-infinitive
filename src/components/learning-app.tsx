@@ -360,6 +360,80 @@ function PatternBadge({ category }: { category: PatternCategory }) {
   );
 }
 
+function displayUsageNote(verb: VerbItem) {
+  if (verb.category === "gerund-only") {
+    return `Setelah "${verb.verb1}", gunakan Verb-ing jika ada aksi lain yang mengikuti langsung.`;
+  }
+
+  if (verb.category === "infinitive-only") {
+    if (
+      verb.acceptedPatterns.includes("object-to-infinitive") &&
+      !verb.acceptedPatterns.includes("to-infinitive")
+    ) {
+      return `Setelah "${verb.verb1}", gunakan object + to + Verb-1 karena aksi berikutnya dilakukan oleh object tersebut.`;
+    }
+
+    return `Setelah "${verb.verb1}", gunakan to + Verb-1 jika ada aksi lain yang mengikuti langsung.`;
+  }
+
+  if (verb.meaningShift === "meaning-change") {
+    return `"${verb.verb1}" termasuk dual-pattern dengan kemungkinan perubahan makna. Bandingkan bentuk Verb-ing dan to + Verb-1 dari konteks kalimat.`;
+  }
+
+  if (verb.meaningShift === "context-dependent") {
+    return `"${verb.verb1}" bergantung pada struktur kalimat. Perhatikan apakah pola memakai object, preposition, atau bentuk to + Verb-1.`;
+  }
+
+  if (verb.meaningShift === "special-case") {
+    return `"${verb.verb1}" adalah special case. Jangan memaksanya menjadi pilihan gerund atau to-infinitive sederhana tanpa membaca struktur.`;
+  }
+
+  return `"${verb.verb1}" dapat memakai lebih dari satu pola. Perbedaan biasanya ada pada penekanan, register, atau konteks, bukan selalu makna dasar.`;
+}
+
+function displayCommonMistake(verb: VerbItem) {
+  if (verb.category === "gerund-only") {
+    return `Hindari bentuk "${verb.verb1} to review" untuk pola pelengkap langsung ini.`;
+  }
+
+  if (verb.category === "infinitive-only") {
+    if (
+      verb.acceptedPatterns.includes("object-to-infinitive") &&
+      !verb.acceptedPatterns.includes("to-infinitive")
+    ) {
+      return `Jangan menghilangkan object pada pola seperti "${verb.verb1} someone to review".`;
+    }
+
+    return `Hindari bentuk "${verb.verb1} reviewing" untuk pola pelengkap langsung ini.`;
+  }
+
+  return "Jangan menganggap semua bentuk memiliki makna yang sama; baca konteks dan struktur kalimat sebelum menjawab.";
+}
+
+function displayContrastNote(verb: VerbItem) {
+  if (verb.category !== "dual-pattern") {
+    return null;
+  }
+
+  if (verb.meaningShift === "meaning-change") {
+    return `Catatan kontras: pilihan Verb-ing dan to + Verb-1 pada "${verb.verb1}" dapat mengubah makna kalimat.`;
+  }
+
+  if (verb.meaningShift === "context-dependent") {
+    return `Catatan struktur: pola yang benar ditentukan oleh object, preposition, dan hubungan antaraksi dalam kalimat.`;
+  }
+
+  if (verb.meaningShift === "special-case") {
+    return `Catatan khusus: pola ini mengikuti aturan khusus seperti perception verbs, causative verbs, passive-like gerund, atau used to.`;
+  }
+
+  return "Catatan penekanan: kedua pola dapat muncul, tetapi pilihan bentuk tetap harus mengikuti konteks kalimat.";
+}
+
+function displayDetailNote(verb: VerbItem) {
+  return displayContrastNote(verb) ?? displayUsageNote(verb);
+}
+
 function ProgressBar({
   label,
   value,
@@ -400,21 +474,19 @@ function VerbSummary({ verb }: { verb: VerbItem }) {
       </div>
       <dl className="detail-grid">
         <div>
-          <dt>Pattern</dt>
+          <dt>Pola</dt>
           <dd>{verb.patternLabel}</dd>
-        </div>
-        <div>
-          <dt>Tier</dt>
-          <dd>{verb.tier}</dd>
         </div>
         <div>
           <dt>Topic</dt>
           <dd>{verb.topic}</dd>
         </div>
       </dl>
-      <p>{verb.usageNote}</p>
-      {verb.contrastNote ? <p className="note">{verb.contrastNote}</p> : null}
-      <p className="mistake">Common mistake: {verb.commonMistake}</p>
+      <p>{displayUsageNote(verb)}</p>
+      {displayContrastNote(verb) ? (
+        <p className="note">{displayContrastNote(verb)}</p>
+      ) : null}
+      <p className="mistake">Kesalahan umum: {displayCommonMistake(verb)}</p>
     </article>
   );
 }
@@ -786,13 +858,13 @@ export function LearningApp({
               {!isFlipped ? (
                 <>
                   <span>{verb.meaning}</span>
-                  <small>Tap untuk lihat pattern</small>
+                  <small>Ketuk untuk lihat pola</small>
                 </>
               ) : (
                 <>
                   <PatternBadge category={verb.category} />
                   <span>{verb.patternLabel}</span>
-                  <small>{verb.contrastNote ?? verb.usageNote}</small>
+                  <small>{displayDetailNote(verb)}</small>
                 </>
               )}
             </button>
