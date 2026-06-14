@@ -20,16 +20,25 @@ import {
 import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import {
-  contentStats,
+  buildLearningPackages,
+  getContentStats,
   getCategoryLabel,
   learningPackages,
+  questions,
   verbs,
+  type ContentStats,
   type LearningPackage,
   type OptionKey,
   type PatternCategory,
   type QuizQuestion,
   type VerbItem,
 } from "@/data/verb-content";
+import {
+  applyQuestionOverrides,
+  applyVerbOverrides,
+  emptyCmsPayload,
+  type CmsPublicPayload,
+} from "@/lib/cms-public";
 import { normalizeText } from "@/lib/learning";
 
 type StudentView = "dashboard" | "search" | "materi" | "flipcard" | "tes";
@@ -256,16 +265,16 @@ function getSearchText(verb: VerbItem) {
   );
 }
 
-function filterContent(query: string) {
+function filterContent(query: string, sourceVerbs: VerbItem[]) {
   const normalizedQuery = normalizeText(query);
 
   if (!normalizedQuery) {
-    return verbs;
+    return sourceVerbs;
   }
 
   const terms = normalizedQuery.split(/\s+/).filter(Boolean);
 
-  return verbs.filter((verb) =>
+  return sourceVerbs.filter((verb) =>
     terms.every((term) => getSearchText(verb).includes(term)),
   );
 }
@@ -274,19 +283,21 @@ function PackageRail({
   activePackageId,
   currentView,
   onSelect,
+  packages,
   progress,
 }: {
   activePackageId: string;
   currentView: View;
   onSelect: (packageId: string) => void;
+  packages: LearningPackage[];
   progress: StoredProgress;
 }) {
   const [rangeStart, setRangeStart] = useState(0);
-  const visiblePackages = learningPackages.slice(
+  const visiblePackages = packages.slice(
     rangeStart,
     rangeStart + PACKAGE_PAGE_SIZE,
   );
-  const rangeEnd = Math.min(rangeStart + PACKAGE_PAGE_SIZE, learningPackages.length);
+  const rangeEnd = Math.min(rangeStart + PACKAGE_PAGE_SIZE, packages.length);
 
   return (
     <aside className="package-rail" aria-label={`Daftar paket ${currentView}`}>
@@ -309,11 +320,11 @@ function PackageRail({
             type="button"
             className="icon-button"
             aria-label="Paket berikutnya"
-            disabled={rangeEnd >= learningPackages.length}
+            disabled={rangeEnd >= packages.length}
             onClick={() =>
               setRangeStart(
                 Math.min(
-                  learningPackages.length - PACKAGE_PAGE_SIZE,
+                  packages.length - PACKAGE_PAGE_SIZE,
                   rangeStart + PACKAGE_PAGE_SIZE,
                 ),
               )
@@ -506,6 +517,7 @@ export function LearningApp({
   const [categoryFilter, setCategoryFilter] = useState<PatternCategory | "all">("all");
   const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
   const [progress, setProgress] = useState<StoredProgress>(emptyProgress);
+  const [cmsPayload, setCmsPayload] = useState<CmsPublicPayload>(emptyCmsPayload);
   const [hydrated, setHydrated] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -516,6 +528,27 @@ export function LearningApp({
     }, 0);
 
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    fetch("/api/cms/public")
+      .then((response) => (response.ok ? response.json() : emptyCmsPayload))
+      .then((payload: CmsPublicPayload) => {
+        if (!cancelled) {
+          setCmsPayload(payload);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setCmsPayload(emptyCmsPayload);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -532,13 +565,34 @@ export function LearningApp({
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const effectiveVerbs = useMemo(
+    () => applyVerbOverrides(verbs, cmsPayload.verbs),
+    [cmsPayload.verbs],
+  );
+  const effectiveQuestions = useMemo(
+    () => applyQuestionOverrides(questions, cmsPayload.questions),
+    [cmsPayload.questions],
+  );
+  const effectivePackages = useMemo(
+    () => buildLearningPackages(effectiveVerbs, effectiveQuestions),
+    [effectiveQuestions, effectiveVerbs],
+  );
+  const effectiveStats = useMemo<ContentStats>(
+    () => getContentStats(effectiveVerbs, effectivePackages, effectiveQuestions),
+    [effectivePackages, effectiveQuestions, effectiveVerbs],
+  );
+
   const activePackage = useMemo(
     () =>
-      learningPackages.find((learningPackage) => learningPackage.id === selectedPackageId) ??
-      learningPackages[0],
-    [selectedPackageId],
+      effectivePackages.find(
+        (learningPackage) => learningPackage.id === selectedPackageId,
+      ) ?? effectivePackages[0],
+    [effectivePackages, selectedPackageId],
   );
-  const searchResults = useMemo(() => filterContent(query), [query]);
+  const searchResults = useMemo(
+    () => filterContent(query, effectiveVerbs),
+    [effectiveVerbs, query],
+  );
   const visibleMaterial = activePackage.verbs.filter((verb) =>
     categoryFilter === "all" ? true : verb.category === categoryFilter,
   );
@@ -660,20 +714,20 @@ export function LearningApp({
         <div className="stats-grid" aria-label="Ringkasan progress">
           <article className="stat-card">
             <span>Verb Bank</span>
-            <strong>{contentStats.total}</strong>
+            <strong>{effectiveStats.total}</strong>
             <small>100 gerund, 100 infinitive, 100 dual-pattern</small>
           </article>
           <article className="stat-card">
             <span>Flipcard Dibuka</span>
             <strong>
-              {viewedCount}/{contentStats.total}
+              {viewedCount}/{effectiveStats.total}
             </strong>
-            <small>{percentage(viewedCount, contentStats.total)}% progress</small>
+            <small>{percentage(viewedCount, effectiveStats.total)}% progress</small>
           </article>
           <article className="stat-card">
             <span>Tes Submit</span>
             <strong>
-              {submittedCount}/{learningPackages.length}
+              {submittedCount}/{effectivePackages.length}
             </strong>
             <small>{draftCount} draft tersimpan</small>
           </article>
@@ -693,9 +747,9 @@ export function LearningApp({
               <h2 id="progress-title">Visual progress belajar</h2>
             </div>
           </div>
-          <ProgressBar label="Flipcard dibuka" value={viewedCount} total={contentStats.total} />
-          <ProgressBar label="Tes submitted" value={submittedCount} total={learningPackages.length} />
-          <ProgressBar label="Draft tes" value={draftCount} total={learningPackages.length} />
+          <ProgressBar label="Flipcard dibuka" value={viewedCount} total={effectiveStats.total} />
+          <ProgressBar label="Tes submitted" value={submittedCount} total={effectivePackages.length} />
+          <ProgressBar label="Draft tes" value={draftCount} total={effectivePackages.length} />
         </section>
 
         <div className="category-grid">
@@ -705,7 +759,7 @@ export function LearningApp({
                 <PatternBadge category={category} />
                 <h3>{getCategoryLabel(category)}</h3>
                 <p>
-                  {verbs.filter((verb) => verb.category === category).length} item
+                  {effectiveVerbs.filter((verb) => verb.category === category).length} item
                   aktif dengan source evidence dan pembahasan Indonesia.
                 </p>
               </article>
@@ -720,9 +774,9 @@ export function LearningApp({
     return (
       <section className="view-stack" aria-labelledby="search-title">
         <div className="panel">
-          <h1 id="search-title">Pencarian</h1>
+          <h1 id="search-title">{cmsPayload.settings.searchTitle ?? "Pencarian"}</h1>
           <label className="sr-only" htmlFor="content-search">
-            Pencarian
+            {cmsPayload.settings.searchTitle ?? "Pencarian"}
           </label>
           <input
             id="content-search"
@@ -730,7 +784,10 @@ export function LearningApp({
             role="searchbox"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Contoh: stop, to-infinitive, menunda"
+            placeholder={
+              cmsPayload.settings.searchPlaceholder ??
+              "Contoh: stop, to-infinitive, menunda"
+            }
           />
           <p className="result-count" aria-live="polite">
             {searchResults.length} hasil ditemukan.
@@ -754,6 +811,7 @@ export function LearningApp({
             activePackageId={activePackage.id}
             currentView={view}
             onSelect={setSelectedPackageId}
+            packages={effectivePackages}
             progress={progress}
           />
           <div className="content-stack">{content}</div>
@@ -950,13 +1008,13 @@ export function LearningApp({
         <div className="stats-grid">
           <article className="stat-card">
             <span>Total content</span>
-            <strong>{contentStats.total}</strong>
+            <strong>{effectiveStats.total}</strong>
             <small>roadmap 300 item sudah aktif</small>
           </article>
           <article className="stat-card">
             <span>Questions</span>
-            <strong>{contentStats.questions}</strong>
-            <small>{contentStats.packages} package, 10 soal per package</small>
+            <strong>{effectiveStats.questions}</strong>
+            <small>{effectiveStats.packages} package, 10 soal per package</small>
           </article>
           <article className="stat-card">
             <span>Submitted lokal</span>

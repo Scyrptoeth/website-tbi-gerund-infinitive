@@ -1,5 +1,5 @@
-import { LearningApp } from "@/components/learning-app";
+import { DeveloperCms } from "@/components/developer/developer-cms";
 
 export default function DeveloperPage() {
-  return <LearningApp initialView="developer" />;
+  return <DeveloperCms />;
 }

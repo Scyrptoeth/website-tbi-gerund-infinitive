@@ -588,6 +588,32 @@ input[type="search"]:focus {
   box-shadow: 0 16px 36px rgba(21, 22, 25, 0.08);
 }
 
+input,
+select,
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: white;
+  color: var(--ink);
+}
+
+select,
+textarea,
+input:not([type="search"]) {
+  width: 100%;
+  min-height: 48px;
+  margin-top: 8px;
+  padding: 12px 14px;
+}
+
+textarea {
+  min-height: 260px;
+  resize: vertical;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
 .result-count {
   margin-bottom: 0;
   font-family: var(--font-mono), ui-monospace, monospace;
@@ -787,6 +813,94 @@ input[type="search"]:focus {
   box-shadow: 0 18px 38px rgba(21, 22, 25, 0.16);
 }
 
+.developer-shell {
+  display: grid;
+  width: min(100%, 1440px);
+  margin: 0 auto;
+  gap: 24px;
+  padding: clamp(24px, 5vw, 64px);
+}
+
+.developer-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.auth-panel,
+.cms-editor {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-panel label,
+.cms-editor label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.cms-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.cms-checkbox {
+  align-content: end;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.cms-checkbox input {
+  width: 20px;
+  min-height: 20px;
+  margin: 0;
+}
+
+.cms-message {
+  margin: 0;
+  align-self: center;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.cms-record-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.cms-record {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: white;
+  padding: 16px;
+}
+
+.cms-record strong,
+.cms-record small {
+  display: block;
+}
+
+.cms-record small {
+  margin-top: 6px;
+  color: var(--muted);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.74rem;
+}
+
 @media (min-width: 760px) {
   .app-shell {
     padding: 40px;
@@ -817,6 +931,10 @@ input[type="search"]:focus {
 
   .detail-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .cms-form-grid {
+    grid-template-columns: 180px minmax(0, 1fr) 160px;
   }
 }
 
@@ -901,7 +1019,9 @@ input[type="search"]:focus {
   .question-head,
   .rail-head,
   .test-surface,
-  .tool-head {
+  .tool-head,
+  .developer-hero,
+  .cms-record {
     flex-direction: column;
   }
 

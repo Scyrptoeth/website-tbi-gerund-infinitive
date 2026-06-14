@@ -861,11 +861,14 @@ function chunk<T>(items: T[], size: number) {
   return chunks;
 }
 
-export const learningPackages: LearningPackage[] = chunk(verbs, PACKAGE_SIZE).map(
-  (packageVerbs, index) => {
+export function buildLearningPackages(
+  sourceVerbs: VerbItem[],
+  sourceQuestions: QuizQuestion[],
+) {
+  return chunk(sourceVerbs, PACKAGE_SIZE).map((packageVerbs, index) => {
     const order = index + 1;
     const packageQuestions = packageVerbs.map((verb) =>
-      questions.find((question) => question.verbId === verb.id),
+      sourceQuestions.find((question) => question.verbId === verb.id),
     );
 
     return {
@@ -879,18 +882,35 @@ export const learningPackages: LearningPackage[] = chunk(verbs, PACKAGE_SIZE).ma
         Boolean(question),
       ),
     };
-  },
+  });
+}
+
+export const learningPackages: LearningPackage[] = buildLearningPackages(
+  verbs,
+  questions,
 );
 
-export const contentStats: ContentStats = {
-  total: verbs.length,
-  gerundOnly: verbs.filter((verb) => verb.category === "gerund-only").length,
-  infinitiveOnly: verbs.filter((verb) => verb.category === "infinitive-only")
-    .length,
-  dualPattern: verbs.filter((verb) => verb.category === "dual-pattern").length,
-  packages: learningPackages.length,
-  questions: questions.length,
-};
+export function getContentStats(
+  sourceVerbs: VerbItem[],
+  sourcePackages: LearningPackage[],
+  sourceQuestions: QuizQuestion[],
+): ContentStats {
+  return {
+    total: sourceVerbs.length,
+    gerundOnly: sourceVerbs.filter((verb) => verb.category === "gerund-only").length,
+    infinitiveOnly: sourceVerbs.filter((verb) => verb.category === "infinitive-only")
+      .length,
+    dualPattern: sourceVerbs.filter((verb) => verb.category === "dual-pattern").length,
+    packages: sourcePackages.length,
+    questions: sourceQuestions.length,
+  };
+}
+
+export const contentStats: ContentStats = getContentStats(
+  verbs,
+  learningPackages,
+  questions,
+);
 
 export function getCategoryLabel(category: PatternCategory) {
   return categoryLabels[category];
