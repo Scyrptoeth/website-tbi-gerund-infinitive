@@ -9,6 +9,9 @@ test("dashboard exposes the Persiapantubel gerund infinitive shell", async ({ pa
   await expect(page.getByRole("navigation", { name: "Navigasi utama" })).toBeVisible();
   await expect(page.getByText("Verb Bank", { exact: true })).toBeVisible();
   await expect(page.getByText("curated verb bank")).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Navigasi utama" }).getByText("SuperAdmin"),
+  ).toHaveCount(0);
 });
 
 test("search finds verb patterns and Indonesian meaning", async ({ page }) => {
@@ -48,4 +51,18 @@ test("test package saves answers and locks after final submit", async ({ page })
 
   await expect(page.getByText("Skor: 1/10")).toBeVisible();
   await expect(page.locator("#q-gerund-admit").getByText(/Jawaban benar: A/i)).toBeVisible();
+});
+
+test("developer route exposes the operational summary outside the main tabs", async ({
+  page,
+}) => {
+  await page.goto("/developer");
+
+  await expect(
+    page.getByRole("heading", { name: "Operational summary" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("navigation", { name: "Navigasi utama" }).getByText("SuperAdmin"),
+  ).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Reset progress lokal" })).toBeVisible();
 });

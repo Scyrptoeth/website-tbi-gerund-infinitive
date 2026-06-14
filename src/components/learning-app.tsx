@@ -15,7 +15,6 @@ import {
   PanelLeftOpen,
   RotateCcw,
   Search,
-  ShieldCheck,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
@@ -34,7 +33,8 @@ import {
 } from "@/data/verb-content";
 import { normalizeText } from "@/lib/learning";
 
-type View = "dashboard" | "search" | "materi" | "flipcard" | "tes" | "superadmin";
+type StudentView = "dashboard" | "search" | "materi" | "flipcard" | "tes";
+type View = StudentView | "developer";
 type PackageStatus = "ready" | "draft" | "submitted";
 
 type DraftAttempt = {
@@ -61,13 +61,12 @@ const emptyProgress: StoredProgress = {
   submitted: {},
 };
 
-const navigation: Array<{ id: View; label: string; icon: LucideIcon }> = [
+const navigation: Array<{ id: StudentView; label: string; icon: LucideIcon }> = [
   { id: "dashboard", label: "Dashboard", icon: ChartNoAxesColumnIncreasing },
   { id: "search", label: "Pencarian", icon: Search },
   { id: "materi", label: "Materi", icon: BookOpen },
   { id: "flipcard", label: "Flipcard", icon: Layers },
   { id: "tes", label: "Tes", icon: ClipboardCheck },
-  { id: "superadmin", label: "SuperAdmin", icon: ShieldCheck },
 ];
 
 function isOptionKey(value: unknown): value is OptionKey {
@@ -420,8 +419,12 @@ function VerbSummary({ verb }: { verb: VerbItem }) {
   );
 }
 
-export function LearningApp() {
-  const [view, setView] = useState<View>("dashboard");
+export function LearningApp({
+  initialView = "dashboard",
+}: {
+  initialView?: View;
+}) {
+  const [view, setView] = useState<View>(initialView);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [railCollapsed, setRailCollapsed] = useState(false);
   const [selectedPackageId, setSelectedPackageId] = useState(learningPackages[0].id);
@@ -911,11 +914,11 @@ export function LearningApp() {
     );
   }
 
-  function renderSuperAdmin() {
+  function renderDeveloper() {
     return (
       <section className="view-stack" aria-labelledby="admin-title">
         <div className="panel">
-          <span className="eyebrow">SuperAdmin summary mode</span>
+          <span className="eyebrow">Developer summary mode</span>
           <h1 id="admin-title">Operational summary</h1>
           <p>
             Panel ini sengaja hanya summary untuk static MVP. Real CRUD, reset
@@ -955,7 +958,7 @@ export function LearningApp() {
             </div>
           </div>
           <ul className="roadmap-list">
-            <li>Server-side auth untuk siswa dan SuperAdmin.</li>
+            <li>Server-side auth untuk siswa dan developer admin.</li>
             <li>Database-backed progress dan attempt snapshots.</li>
             <li>Content CRUD/import/export dengan source evidence audit.</li>
             <li>Attempt reset dengan audit log, bukan localStorage.</li>
@@ -1036,7 +1039,7 @@ export function LearningApp() {
         {view === "materi" ? renderMateri() : null}
         {view === "flipcard" ? renderFlipcard() : null}
         {view === "tes" ? renderTes() : null}
-        {view === "superadmin" ? renderSuperAdmin() : null}
+        {view === "developer" ? renderDeveloper() : null}
       </main>
 
       {showScrollTop ? (

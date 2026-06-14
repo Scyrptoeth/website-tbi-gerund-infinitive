@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const views = ["Dashboard", "Pencarian", "Materi", "Flipcard", "Tes", "SuperAdmin"];
+const views = ["Dashboard", "Pencarian", "Materi", "Flipcard", "Tes"];
 
 for (const view of views) {
   test(`${view} view has no serious accessibility violations`, async ({ page }) => {
@@ -19,3 +19,14 @@ for (const view of views) {
     expect(seriousViolations).toEqual([]);
   });
 }
+
+test("Developer route has no serious accessibility violations", async ({ page }) => {
+  await page.goto("/developer");
+
+  const results = await new AxeBuilder({ page }).analyze();
+  const seriousViolations = results.violations.filter((violation) =>
+    ["critical", "serious"].includes(violation.impact ?? ""),
+  );
+
+  expect(seriousViolations).toEqual([]);
+});

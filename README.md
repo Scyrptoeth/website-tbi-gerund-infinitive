@@ -9,7 +9,7 @@ Static MVP for Bimbel Persiapantubel students to learn English gerund and infini
 - Materi packages for Verb-1, Verb-2, Verb-3, meaning, pattern, usage note, and common mistakes.
 - Flipcard active recall with local viewed-card progress.
 - Test packages with A-D answers, draft state, final submit lock, score, and Indonesian explanations.
-- SuperAdmin summary that clearly labels the production boundary.
+- Developer route at `/developer` with an operational summary that clearly labels the production boundary.
 
 This implementation is a static/live MVP. Browser localStorage is used only for demo progress. Production student operations should use server-side auth, database-backed progress, attempt snapshots, role checks, and audit logs.
 
