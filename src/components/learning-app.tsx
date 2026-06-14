@@ -89,6 +89,10 @@ function sanitizeAnswers(value: unknown): Partial<Record<string, OptionKey>> {
   );
 }
 
+function displayQuizExplanation(explanation: string) {
+  return explanation.replace(/^Jawaban benar [A-D]\.\s*/, "");
+}
+
 function loadStoredProgress(): StoredProgress {
   if (typeof window === "undefined") {
     return emptyProgress;
@@ -497,7 +501,6 @@ export function LearningApp({
 }) {
   const [view, setView] = useState<View>(initialView);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [railCollapsed, setRailCollapsed] = useState(false);
   const [selectedPackageId, setSelectedPackageId] = useState(learningPackages[0].id);
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<PatternCategory | "all">("all");
@@ -717,10 +720,9 @@ export function LearningApp({
     return (
       <section className="view-stack" aria-labelledby="search-title">
         <div className="panel">
-          <span className="eyebrow">Pencarian global</span>
-          <h1 id="search-title">Cari verb, arti, atau pattern</h1>
-          <label className="search-label" htmlFor="content-search">
-            Cari verb atau pattern
+          <h1 id="search-title">Pencarian</h1>
+          <label className="sr-only" htmlFor="content-search">
+            Pencarian
           </label>
           <input
             id="content-search"
@@ -746,32 +748,14 @@ export function LearningApp({
 
   function renderPackageLayout(content: React.ReactNode, title: string) {
     return (
-      <section className="tool-layout" aria-labelledby={`${view}-title`}>
-        <div className="tool-head">
-          <div>
-            <span className="eyebrow">{activePackage.title}</span>
-            <h1 id={`${view}-title`}>{title}</h1>
-            <p>{activePackage.description}</p>
-          </div>
-          <button
-            type="button"
-            className="secondary-button rail-toggle"
-            aria-expanded={!railCollapsed}
-            onClick={() => setRailCollapsed((current) => !current)}
-          >
-            {railCollapsed ? "Buka daftar paket" : "Tutup daftar paket"}
-          </button>
-        </div>
-
-        <div className={railCollapsed ? "tool-grid rail-hidden" : "tool-grid"}>
-          {!railCollapsed ? (
-            <PackageRail
-              activePackageId={activePackage.id}
-              currentView={view}
-              onSelect={setSelectedPackageId}
-              progress={progress}
-            />
-          ) : null}
+      <section className="tool-layout" aria-label={title}>
+        <div className="tool-grid">
+          <PackageRail
+            activePackageId={activePackage.id}
+            currentView={view}
+            onSelect={setSelectedPackageId}
+            progress={progress}
+          />
           <div className="content-stack">{content}</div>
         </div>
       </section>
@@ -890,11 +874,8 @@ export function LearningApp({
         </div>
         {isSubmitted ? (
           <div className={isCorrect ? "review correct" : "review wrong"}>
-            <strong>
-              {isCorrect ? "Benar" : "Belum tepat"} | Jawaban benar:{" "}
-              {question.correctKey}
-            </strong>
-            <p>{question.explanation}</p>
+            <strong>{isCorrect ? "Benar" : "Belum tepat"}</strong>
+            <p>{displayQuizExplanation(question.explanation)}</p>
           </div>
         ) : null}
       </article>
@@ -1028,7 +1009,6 @@ export function LearningApp({
                 priority
               />
             </div>
-            <span className="brand-kicker">TBI learning cockpit</span>
           </div>
           <button
             type="button"
