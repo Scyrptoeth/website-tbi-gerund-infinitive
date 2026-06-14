@@ -15,7 +15,6 @@ import {
   PanelLeftOpen,
   RotateCcw,
   Search,
-  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import Image from "next/image";
@@ -651,16 +650,7 @@ export function LearningApp({
       <section className="view-stack" aria-labelledby="dashboard-title">
         <div className="dashboard-hero">
           <div className="dashboard-copy">
-            <span className="eyebrow">Bimbel Persiapantubel</span>
             <h1 id="dashboard-title">TBI - Gerund & Infinitive</h1>
-            <p>
-              Learning cockpit untuk menguasai kata kerja yang diikuti gerund,
-              to-infinitive, dan dual-pattern verbs dengan perubahan makna.
-            </p>
-          </div>
-          <div className="hero-mark" aria-label="Jumlah content bank aktif">
-            <span>{contentStats.total}</span>
-            <small>curated verb bank</small>
           </div>
         </div>
 
@@ -693,40 +683,17 @@ export function LearningApp({
           </article>
         </div>
 
-        <div className="dashboard-grid">
-          <section className="panel" aria-labelledby="progress-title">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Progress chart</span>
-                <h2 id="progress-title">Visual progress belajar</h2>
-              </div>
+        <section className="panel" aria-labelledby="progress-title">
+          <div className="section-head">
+            <div>
+              <span className="eyebrow">Progress chart</span>
+              <h2 id="progress-title">Visual progress belajar</h2>
             </div>
-            <ProgressBar label="Flipcard dibuka" value={viewedCount} total={contentStats.total} />
-            <ProgressBar label="Tes submitted" value={submittedCount} total={learningPackages.length} />
-            <ProgressBar label="Draft tes" value={draftCount} total={learningPackages.length} />
-          </section>
-
-          <section className="panel" aria-labelledby="next-action-title">
-            <div className="section-head">
-              <div>
-                <span className="eyebrow">Next action</span>
-                <h2 id="next-action-title">Lanjutkan package pertama</h2>
-              </div>
-            </div>
-            <p>
-              Mulai dari <strong>{learningPackages[0].title}</strong> untuk
-              melihat pola dasar, buka flipcard, lalu submit tes pertama.
-            </p>
-            <div className="button-row">
-              <button type="button" className="primary-button" onClick={() => changeView("materi")}>
-                Buka Materi
-              </button>
-              <button type="button" className="secondary-button" onClick={() => changeView("tes")}>
-                Mulai Tes
-              </button>
-            </div>
-          </section>
-        </div>
+          </div>
+          <ProgressBar label="Flipcard dibuka" value={viewedCount} total={contentStats.total} />
+          <ProgressBar label="Tes submitted" value={submittedCount} total={learningPackages.length} />
+          <ProgressBar label="Draft tes" value={draftCount} total={learningPackages.length} />
+        </section>
 
         <div className="category-grid">
           {(["gerund-only", "infinitive-only", "dual-pattern"] as PatternCategory[]).map(
@@ -1062,7 +1029,6 @@ export function LearningApp({
               />
             </div>
             <span className="brand-kicker">TBI learning cockpit</span>
-            <strong>Gerund & Infinitive</strong>
           </div>
           <button
             type="button"
@@ -1099,10 +1065,6 @@ export function LearningApp({
           })}
         </nav>
 
-        <div className="sidebar-foot">
-          <Sparkles aria-hidden="true" size={18} />
-          <span>{contentStats.total} curated items</span>
-        </div>
       </aside>
 
       <main className="main-content">
