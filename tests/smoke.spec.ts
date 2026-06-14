@@ -80,10 +80,8 @@ test("developer route exposes the operational summary outside the main tabs", as
 }) => {
   await page.goto("/developer");
 
-  await expect(
-    page.getByRole("heading", { name: "Content control room" }),
-  ).toBeVisible();
-  await expect(page.getByText("Developer CMS")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Koreksi konten" })).toBeVisible();
+  await expect(page.getByText("Developer", { exact: true })).toBeVisible();
   await expect(page.getByText("Konfigurasi belum lengkap")).toBeVisible();
   await expect(page.getByText("Operational summary")).toHaveCount(0);
 });

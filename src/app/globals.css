@@ -828,10 +828,30 @@ textarea {
   gap: 24px;
 }
 
+.developer-hero .button-row {
+  justify-content: flex-end;
+}
+
 .auth-panel,
 .cms-editor {
   display: grid;
   gap: 18px;
+}
+
+.cms-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px;
+}
+
+.cms-tabs button {
+  flex: 1 1 160px;
+  min-height: 44px;
+}
+
+.stat-card.compact {
+  min-height: 128px;
 }
 
 .auth-panel label,
@@ -852,6 +872,29 @@ textarea {
   gap: 16px;
 }
 
+.cms-form-grid.two {
+  grid-template-columns: 1fr;
+}
+
+.cms-picker-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.cms-preview-strip {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  padding: 14px;
+}
+
+.cms-preview-strip p {
+  margin: 0;
+}
+
 .cms-checkbox {
   align-content: end;
   grid-template-columns: auto 1fr;
@@ -869,6 +912,18 @@ textarea {
   align-self: center;
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.cms-toast {
+  margin: 0;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+  background: var(--ink);
+  color: white;
+  padding: 12px 14px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
@@ -935,6 +990,11 @@ textarea {
 
   .cms-form-grid {
     grid-template-columns: 180px minmax(0, 1fr) 160px;
+  }
+
+  .cms-form-grid.two,
+  .cms-picker-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
